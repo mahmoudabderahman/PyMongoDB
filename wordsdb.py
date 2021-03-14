@@ -1,5 +1,5 @@
 import pymongo as pm
-
+import datetime
 fh = open("Vocabulary_set.csv", "r") # open the csv file
 wd_list = fh.readlines() # read all text at once
 
@@ -29,4 +29,28 @@ dbs = client.list_database_names()
 if "vocab" in dbs:
     print("Database exists")
 res = vocab_col.insert_many(vocab_list)
-print("inserted_id: ", res.inserted_ids)
+#print("inserted_id: ", res.inserted_ids)
+data = vocab_col.find_one()
+print(data)
+
+# print all data from the mongodb with the "_id" and "definition"
+# excluded
+for data in vocab_col.find({}, {"_id":0, "definition":0}):
+    print(data)
+
+# find the information for the word 'boisterous'
+data = vocab_col.find_one({'word':'boisterous'})
+print(data)
+
+# update the definition for the word "boisterous"
+upd = vocab_col.update_one({'word': 'boisterous'}, 
+{"$set" : {'definition': 'rowdy; noisy'}})
+print("modified count: ", upd.modified_count)
+
+# find the information for the word 'boisterous' after updating it
+data = vocab_col.find_one({'word':'boisterous'})
+print(data)
+
+upd = vocab_col.update_many({}, {"$set" : {"last_updated UTC:":
+datetime.datetime.utcnow().strftime('%Y-%m-%d%H%M%SZ')}})
+print("modified count: ", upd.modified_count)
